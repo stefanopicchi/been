@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="it" data-t="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Visited</title>
+<meta name="theme-color" content="#ff6a00">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{--bg:#f6f7f9;--fg:#15181d;--card:#fff;--mut:#6b7280;--line:#e3e6ea;--acc:#ff6a00}
+[data-t=dark]{--bg:#0e1114;--fg:#eef0f3;--card:#181c21;--mut:#9aa3af;--line:#2a2f36}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) 0 calc(68px + env(safe-area-inset-bottom))}
+header{padding:16px 16px 8px}
+h1{margin:0;font-size:26px;letter-spacing:-.02em}
+h3{margin:22px 0 10px;font-size:16px}
+main{max-width:760px;margin:0 auto;padding:0 12px}
+section{display:none}section.on{display:block}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+#mapwrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);aspect-ratio:2/1;touch-action:none;user-select:none}
+#map{width:100%;height:100%;display:block;cursor:grab}
+#zoom{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px}
+#zoom button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:18px;line-height:1}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.grid b{display:block;font-size:26px;letter-spacing:-.02em}
+.grid span{color:var(--mut);font-size:13px}
+.hint{color:var(--mut);font-size:13px;margin:8px 2px}
+.row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:last-child{border:0}.row span{flex:1}.row em{font-style:normal;color:var(--mut);font-size:13px}
+.row input{width:20px;height:20px;accent-color:var(--acc)}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:10px 0;padding:0 12px}
+summary{padding:13px 0;font-weight:600;cursor:pointer;display:flex;justify-content:space-between}
+summary i{font-style:normal;color:var(--mut);font-weight:400}
+.srch{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.bar{margin:12px 0}.bar div:first-child{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.bar div+div{height:9px;border-radius:5px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--acc);border-radius:5px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px}
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.set:last-child{border:0}
+.set select,.btn{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.sw{display:flex;gap:6px;align-items:center}.sw button{width:24px;height:24px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line);padding:0}
+input[type=color]{width:38px;height:30px;border:0;padding:0;background:none}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;border:0;background:none;padding:9px 0 8px;font-size:11px;color:var(--mut)}
+nav button b{display:block;font-size:20px;font-weight:400}
+nav button.on{color:var(--acc);font-weight:600}
+#sh{position:fixed;inset:0;z-index:10;display:flex;align-items:flex-end;justify-content:center}
+#sh[hidden]{display:none}
+.bk{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.pn{position:relative;width:100%;max-width:520px;background:var(--card);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.pn h2{margin:0 0 14px;font-size:20px}
+.seg{display:flex;gap:6px}.seg button{flex:1;padding:11px 4px;border-radius:12px;border:1px solid var(--line);background:none}
+.seg button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.vis{display:flex;align-items:center;gap:14px;margin-top:16px}.vis span{flex:1}
+.vis button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:none;font-size:20px}
+.vis b{min-width:24px;text-align:center;font-size:18px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(prefers-reduced-motion:reduce){.pn{animation:none}}
+</style>
+</head>
+<body>
+<header><h1 id="ttl">Visited</h1></header>
+<main>
+  <section id="v-map" class="on">
+    <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="zoom"><button id="zi" aria-label="+">+</button><button id="zo" aria-label="-">−</button><button id="zr" aria-label="reset">⟲</button></div>
+    </div>
+    <div class="hint" data-i="hint"></div>
+    <div class="grid" id="sum"></div>
+  </section>
+  <section id="v-list">
+    <input class="srch" id="q" type="search" data-p="search">
+    <div id="lst"></div>
+  </section>
+  <section id="v-stats"><div id="stats"></div></section>
+  <section id="v-set">
+    <div class="card">
+      <div class="set"><span data-i="language"></span><select id="sl"><option value="it">Italiano</option><option value="en">English</option></select></div>
+      <div class="set"><span data-i="theme"></span><select id="st"><option value="auto" data-i="auto"></option><option value="light" data-i="light"></option><option value="dark" data-i="dark"></option></select></div>
+      <div class="set"><span data-i="visited"></span><div class="sw" id="sw1"><input type="color" id="c1"></div></div>
+      <div class="set"><span data-i="lived"></span><div class="sw" id="sw2"><input type="color" id="c2"></div></div>
+    </div>
+    <h3 data-i="backup"></h3>
+    <div class="card">
+      <div class="set"><span data-i="expImg"></span><button class="btn p" id="bi" data-i="share"></button></div>
+      <div class="set"><span data-i="expJson"></span><button class="btn" id="be" data-i="download"></button></div>
+      <div class="set"><span data-i="impJson"></span><button class="btn" id="bm" data-i="choose"></button><input type="file" id="fi" accept=".json,application/json" hidden></div>
+      <div class="set"><span data-i="reset"></span><button class="btn" id="br" data-i="delete"></button></div>
+    </div>
+    <p class="hint" data-i="note"></p>
+  </section>
+</main>
+<nav>
+  <button data-v="map" class="on"><b>🗺</b><span data-i="tMap"></span></button>
+  <button data-v="list"><b>☰</b><span data-i="tList"></span></button>
+  <button data-v="stats"><b>📊</b><span data-i="tStats"></span></button>
+  <button data-v="set"><b>⚙</b><span data-i="tSet"></span></button>
+</nav>
+<div id="sh" hidden>
+  <div class="bk"></div>
+  <div class="pn">
+    <h2 id="shn"></h2>
+    <div class="seg"><button data-s="0" data-i="none"></button><button data-s="1" data-i="visited"></button><button data-s="2" data-i="lived"></button></div>
+    <div class="vis" id="shv"><span data-i="visits"></span><button id="mn">−</button><b id="vn">0</b><button id="pl">+</button></div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script>
+const W=WORLD.vb[0],H=WORLD.vb[1],CK=Object.keys(WORLD.k),$=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const CN={AF:{it:'Africa',en:'Africa'},AS:{it:'Asia',en:'Asia'},EU:{it:'Europa',en:'Europe'},NA:{it:'Nord America',en:'North America'},SA:{it:'Sud America',en:'South America'},OC:{it:'Oceania',en:'Oceania'}};
+const TX={
+it:{tMap:'Mappa',tList:'Paesi',tStats:'Statistiche',tSet:'Impostazioni',hint:'Tocca un paese per segnarlo. Pizzica o usa +/− per ingrandire.',search:'Cerca un paese…',
+language:'Lingua',theme:'Tema',auto:'Automatico',light:'Chiaro',dark:'Scuro',visited:'Visitato',lived:'Vissuto',none:'Non visitato',visits:'Numero di visite (facoltativo)',
+backup:'Dati e condivisione',expImg:'Esporta la mappa come immagine',share:'Condividi',expJson:'Backup (file JSON)',download:'Scarica',impJson:'Ripristina da backup',choose:'Scegli file',reset:'Cancella tutti i dati',delete:'Cancella',
+note:'I dati restano su questo dispositivo. Fai un backup prima di cambiare telefono o browser.',
+countries:'Paesi',ofCountries:'dei paesi del mondo',ofLand:'delle terre emerse',byCont:'Per continente',visitedList:'Paesi visitati',empty:'Ancora nessun paese: tocca la mappa per iniziare.',
+confirmReset:'Cancellare tutti i paesi segnati?',badFile:'File non valido.',confirmImp:'Sostituire i dati attuali con quelli del backup?',ofWorld:'del mondo',tot:'visite registrate'},
+en:{tMap:'Map',tList:'Countries',tStats:'Stats',tSet:'Settings',hint:'Tap a country to mark it. Pinch or use +/− to zoom.',search:'Search a country…',
+language:'Language',theme:'Theme',auto:'Automatic',light:'Light',dark:'Dark',visited:'Visited',lived:'Lived',none:'Not visited',visits:'Number of visits (optional)',
+backup:'Data and sharing',expImg:'Export the map as an image',share:'Share',expJson:'Backup (JSON file)',download:'Download',impJson:'Restore from backup',choose:'Choose file',reset:'Delete all data',delete:'Delete',
+note:'Data stays on this device. Make a backup before switching phone or browser.',
+countries:'Countries',ofCountries:'of the world’s countries',ofLand:'of the world’s land',byCont:'By continent',visitedList:'Visited countries',empty:'No countries yet: tap the map to start.',
+confirmReset:'Delete all marked countries?',badFile:'Invalid file.',confirmImp:'Replace current data with the backup?',ofWorld:'of the world',tot:'recorded visits'}};
+let S=null;try{S=JSON.parse(localStorage.getItem('visited-v1'))}catch(e){}
+S=S||{};S.v=S.v||{};S.s=Object.assign({lang:/^it/i.test(navigator.language)?'it':'en',theme:'auto',c1:'#ff6a00',c2:'#e11d48'},S.s);
+const save=()=>{try{localStorage.setItem('visited-v1',JSON.stringify(S))}catch(e){}};
+const t=k=>TX[S.s.lang][k]||k;
+let dn;const nm=c=>{try{return dn.of(c)||c}catch(e){return c}};
+const flag=c=>String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0)));
+const isDark=()=>S.s.theme=='dark'||(S.s.theme=='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+const pal=()=>isDark()?{bg:'#0e1114',oc:'#12171c',ld:'#2d333b',ln:'#0e1114',tx:'#eef0f3'}:{bg:'#f6f7f9',oc:'#e8eff6',ld:'#d5d9df',ln:'#ffffff',tx:'#15181d'};
+const vis=()=>CK.filter(c=>S.v[c]);
+
+/* ---------- mappa ---------- */
+const svg=$('#map');let V={x:0,y:0,w:W,h:H};
+function build(){
+  svg.innerHTML=`<rect id="oc" width="${W}" height="${H}"/><g id="g" stroke-width=".4" stroke-linejoin="round"><path id="oth" d="${WORLD.o}"/>`
+   +CK.filter(c=>WORLD.c[c]).map(c=>`<path data-c="${c}" d="${WORLD.c[c]}"/>`).join('')
+   +Object.entries(WORLD.m).map(([c,p])=>`<circle data-c="${c}" cx="${p[0]}" cy="${p[1]}" r="3.6"/>`).join('')+'</g>';
+}
+function paint(){
+  const p=pal();$('#oc').setAttribute('fill',p.oc);$('#oth').setAttribute('fill',p.ld);$('#g').setAttribute('stroke',p.ln);
+  svg.querySelectorAll('[data-c]').forEach(e=>{const r=S.v[e.dataset.c];e.setAttribute('fill',r?(r.l?S.s.c2:S.s.c1):p.ld)});
+}
+function setV(){V.w=Math.min(W,Math.max(W/14,V.w));V.h=V.w*H/W;V.x=Math.min(W-V.w,Math.max(0,V.x));V.y=Math.min(H-V.h,Math.max(0,V.y));svg.setAttribute('viewBox',`${V.x} ${V.y} ${V.w} ${V.h}`)}
+function zoom(f,cx,cy){const nw=Math.min(W,Math.max(W/14,V.w*f)),k=nw/V.w;V.x=cx-(cx-V.x)*k;V.y=cy-(cy-V.y)*k;V.w=nw;setV()}
+const pt=(x,y)=>{const r=svg.getBoundingClientRect();return[V.x+(x-r.left)/r.width*V.w,V.y+(y-r.top)/r.height*V.h]};
+const P=new Map();let moved=0,pd=0;
+svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.clientX,e.clientY]);moved=0;if(P.size==2){const[a,b]=[...P.values()];pd=Math.hypot(a[0]-b[0],a[1]-b[1])}});
+svg.addEventListener('pointermove',e=>{
+  if(!P.has(e.pointerId))return;const o=P.get(e.pointerId),r=svg.getBoundingClientRect();
+  if(P.size==1){const dx=e.clientX-o[0],dy=e.clientY-o[1];moved+=Math.abs(dx)+Math.abs(dy);V.x-=dx/r.width*V.w;V.y-=dy/r.height*V.h;setV()}
+  else if(P.size==2){moved+=9;P.set(e.pointerId,[e.clientX,e.clientY]);const[a,b]=[...P.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pd){const m=pt((a[0]+b[0])/2,(a[1]+b[1])/2);zoom(pd/d,m[0],m[1])}pd=d}
+  P.set(e.pointerId,[e.clientX,e.clientY]);
+});
+['pointerup','pointercancel'].forEach(n=>svg.addEventListener(n,e=>{P.delete(e.pointerId);pd=0}));
+svg.addEventListener('wheel',e=>{e.preventDefault();const m=pt(e.clientX,e.clientY);zoom(e.deltaY>0?1.2:1/1.2,m[0],m[1])},{passive:false});
+svg.addEventListener('click',e=>{const c=e.target.dataset&&e.target.dataset.c;if(c&&moved<8)openSheet(c)});
+$('#zi').onclick=()=>zoom(1/1.5,V.x+V.w/2,V.y+V.h/2);$('#zo').onclick=()=>zoom(1.5,V.x+V.w/2,V.y+V.h/2);$('#zr').onclick=()=>{V={x:0,y:0,w:W,h:H};setV()};
+
+/* ---------- scheda paese ---------- */
+let cur=null;
+function openSheet(c){cur=c;$('#sh').hidden=false;sheet()}
+function sheet(){
+  const r=S.v[cur],s=r?(r.l?2:1):0;$('#shn').textContent=flag(cur)+' '+nm(cur);
+  $$('.seg button').forEach(b=>b.classList.toggle('on',+b.dataset.s==s));
+  $('#shv').style.display=s?'flex':'none';$('#vn').textContent=r&&r.n||0;
+}
+function setState(c,s){if(!s)delete S.v[c];else{const r=S.v[c]||(S.v[c]={});r.l=s==2?1:0}save();render()}
+$$('.seg button').forEach(b=>b.onclick=()=>{setState(cur,+b.dataset.s);sheet()});
+$('#mn').onclick=()=>{const r=S.v[cur];if(r){r.n=Math.max(0,(r.n||0)-1);if(!r.n)delete r.n;save();sheet();render()}};
+$('#pl').onclick=()=>{const r=S.v[cur];if(r){r.n=Math.min(999,(r.n||0)+1);save();sheet();render()}};
+$('.bk').onclick=()=>$('#sh').hidden=true;
+
+/* ---------- elenco ---------- */
+const OP=new Set();
+function renderList(){
+  const q=$('#q').value.trim().toLowerCase(),l=S.s.lang;let h='';
+  for(const k in CN){
+    const all=CK.filter(c=>WORLD.k[c]==k),got=all.filter(c=>S.v[c]).length;
+    const rows=all.filter(c=>!q||nm(c).toLowerCase().includes(q)).sort((a,b)=>nm(a).localeCompare(nm(b),l));
+    if(!rows.length)continue;
+    h+=`<details data-k="${k}" ${OP.has(k)||q?'open':''}><summary>${CN[k][l]}<i>${got}/${all.length}</i></summary>`
+     +rows.map(c=>{const r=S.v[c];return `<div class="row" data-c="${c}"><input type="checkbox" ${r?'checked':''}><span>${flag(c)} ${nm(c)}</span><em>${r?(r.l?'★ ':'')+(r.n?r.n+'×':''):''}</em></div>`}).join('')+'</details>';
+  }
+  $('#lst').innerHTML=h;
+}
+$('#lst').addEventListener('click',e=>{const row=e.target.closest('.row');if(!row)return;const c=row.dataset.c;if(e.target.tagName=='INPUT'){e.preventDefault();setState(c,S.v[c]?0:1)}else openSheet(c)});
+$('#lst').addEventListener('toggle',e=>{const k=e.target.dataset.k;if(k&&!$('#q').value)e.target.open?OP.add(k):OP.delete(k)},true);
+$('#q').oninput=renderList;
+
+/* ---------- statistiche ---------- */
+function numbers(){
+  const v=vis(),n=v.length;
+  return{n,T:CK.length,lived:v.filter(c=>S.v[c].l).length,tv:v.reduce((a,c)=>a+(S.v[c].n||0),0),ar:v.reduce((a,c)=>a+(WORLD.a[c]||0),0)};
+}
+const card=(a,b)=>`<div class="card"><b>${a}</b><span>${b}</span></div>`;
+function renderStats(){
+  const N=numbers(),l=S.s.lang;
+  const cont=Object.keys(CN).map(k=>{const all=CK.filter(c=>WORLD.k[c]==k);return{k,a:all.length,g:all.filter(c=>S.v[c]).length}}).sort((x,y)=>y.g/y.a-x.g/x.a);
+  const list=vis().sort((a,b)=>(S.v[b].n||0)-(S.v[a].n||0)||nm(a).localeCompare(nm(b),l));
+  $('#stats').innerHTML=`<div class="grid">${card(N.n+'/'+N.T,t('countries'))}${card((N.n/N.T*100).toFixed(1)+'%',t('ofCountries'))}${card(N.ar.toFixed(1)+'%',t('ofLand'))}${card(N.lived,t('lived'))}</div>`
+   +(N.tv?`<p class="hint">${N.tv} ${t('tot')}</p>`:'')
+   +`<h3>${t('byCont')}</h3>`+cont.map(c=>`<div class="bar"><div><span>${CN[c.k][l]}</span><span>${c.g}/${c.a}</span></div><div><i style="width:${c.g/c.a*100}%"></i></div></div>`).join('')
+   +`<h3>${t('visitedList')} (${N.n})</h3>`+(list.length?`<div class="chips">${list.map(c=>`<span class="chip">${flag(c)} ${nm(c)}${S.v[c].l?' ★':''}${S.v[c].n?' ×'+S.v[c].n:''}</span>`).join('')}</div>`:`<p class="hint">${t('empty')}</p>`);
+}
+function renderSum(){const N=numbers();$('#sum').innerHTML=card(N.n+'/'+N.T,t('countries'))+card((N.n/N.T*100).toFixed(1)+'%',t('ofCountries'))+card(N.ar.toFixed(1)+'%',t('ofLand'))+card(N.lived,t('lived'))}
+
+/* ---------- impostazioni, backup, immagine ---------- */
+const COL=['#ff6a00','#e11d48','#2563eb','#16a34a','#9333ea','#eab308'];
+['1','2'].forEach(n=>{const box=$('#sw'+n);COL.forEach(c=>{const b=document.createElement('button');b.style.background=c;b.setAttribute('aria-label',c);b.onclick=()=>{S.s['c'+n]=c;$('#c'+n).value=c;save();paint()};box.prepend(b)});$('#c'+n).oninput=e=>{S.s['c'+n]=e.target.value;save();paint()}});
+$('#sl').onchange=e=>{S.s.lang=e.target.value;save();applyLang()};
+$('#st').onchange=e=>{S.s.theme=e.target.value;save();applyTheme()};
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+$('#be').onclick=()=>dl(new Blob([JSON.stringify({app:'visited',v:1,data:S.v,settings:S.s},null,1)],{type:'application/json'}),'visited-backup-'+new Date().toISOString().slice(0,10)+'.json');
+$('#bm').onclick=()=>$('#fi').click();
+$('#fi').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const j=JSON.parse(await f.text());if(j.app!='visited'||typeof j.data!='object')throw 0;
+    if(!confirm(t('confirmImp')))return;
+    const d={};for(const c in j.data)if(WORLD.k[c]){const r=j.data[c]||{};d[c]={l:r.l?1:0};if(r.n>0)d[c].n=Math.min(999,r.n|0)}
+    S.v=d;if(j.settings)Object.assign(S.s,j.settings);save();applyLang();
+  }catch(_){alert(t('badFile'))}
+};
+$('#br').onclick=()=>{if(confirm(t('confirmReset'))){S.v={};save();render()}};
+$('#bi').onclick=async()=>{
+  const W2=2000,mh=W2*H/W,fh=240,p=pal(),N=numbers(),c=document.createElement('canvas');c.width=W2;c.height=mh+fh;const x=c.getContext('2d');
+  x.fillStyle=p.bg;x.fillRect(0,0,c.width,c.height);
+  const n=svg.cloneNode(true);n.setAttribute('xmlns','http://www.w3.org/2000/svg');n.setAttribute('viewBox',`0 0 ${W} ${H}`);n.setAttribute('width',W2);n.setAttribute('height',mh);
+  const img=new Image();img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(n));
+  try{await img.decode()}catch(_){return}
+  x.drawImage(img,0,0,W2,mh);
+  x.fillStyle=p.tx;x.font='700 84px system-ui,sans-serif';x.fillText(N.n+' / '+N.T+' '+t('countries').toLowerCase(),70,mh+110);
+  x.fillStyle='#8a929c';x.font='46px system-ui,sans-serif';x.fillText((N.n/N.T*100).toFixed(1)+'% '+t('ofCountries')+'  ·  '+N.ar.toFixed(1)+'% '+t('ofLand'),70,mh+185);
+  c.toBlob(async b=>{const f=new File([b],'visited-map.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e.name=='AbortError')return}}
+    dl(b,'visited-map.png')});
+};
+
+/* ---------- avvio ---------- */
+function render(){paint();renderSum();renderStats();renderList()}
+function applyTheme(){const d=isDark();document.documentElement.dataset.t=d?'dark':'light';$('#st').value=S.s.theme;paint()}
+function applyLang(){
+  const l=S.s.lang;document.documentElement.lang=l;dn=new Intl.DisplayNames([l],{type:'region'});
+  $$('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));$$('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
+  $('#sl').value=l;$('#c1').value=S.s.c1;$('#c2').value=S.s.c2;render();if(!$('#sh').hidden)sheet();
+}
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x==b));$$('section').forEach(s=>s.classList.toggle('on',s.id=='v-'+b.dataset.v));scrollTo(0,0)});
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyTheme);
+build();setV();applyTheme();applyLang();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
