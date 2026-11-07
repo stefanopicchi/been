@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Visited</title>
+<title>Been</title>
 <meta name="theme-color" content="#ff6a00">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Been">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -68,7 +69,7 @@ nav button.on{color:var(--acc);font-weight:600}
 </style>
 </head>
 <body>
-<header><h1 id="ttl">Visited</h1></header>
+<header><h1 id="ttl">Been</h1></header>
 <main>
   <section id="v-map" class="on">
     <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -221,7 +222,7 @@ const COL=['#ff6a00','#e11d48','#2563eb','#16a34a','#9333ea','#eab308'];
 $('#sl').onchange=e=>{S.s.lang=e.target.value;save();applyLang()};
 $('#st').onchange=e=>{S.s.theme=e.target.value;save();applyTheme()};
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
-$('#be').onclick=()=>dl(new Blob([JSON.stringify({app:'visited',v:1,data:S.v,settings:S.s},null,1)],{type:'application/json'}),'visited-backup-'+new Date().toISOString().slice(0,10)+'.json');
+$('#be').onclick=()=>dl(new Blob([JSON.stringify({app:'visited',v:1,data:S.v,settings:S.s},null,1)],{type:'application/json'}),'been-backup-'+new Date().toISOString().slice(0,10)+'.json');
 $('#bm').onclick=()=>$('#fi').click();
 $('#fi').onchange=async e=>{
   const f=e.target.files[0];e.target.value='';if(!f)return;
@@ -241,9 +242,9 @@ $('#bi').onclick=async()=>{
   x.drawImage(img,0,0,W2,mh);
   x.fillStyle=p.tx;x.font='700 84px system-ui,sans-serif';x.fillText(N.n+' / '+N.T+' '+t('countries').toLowerCase(),70,mh+110);
   x.fillStyle='#8a929c';x.font='46px system-ui,sans-serif';x.fillText((N.n/N.T*100).toFixed(1)+'% '+t('ofCountries')+'  ·  '+N.ar.toFixed(1)+'% '+t('ofLand'),70,mh+185);
-  c.toBlob(async b=>{const f=new File([b],'visited-map.png',{type:'image/png'});
+  c.toBlob(async b=>{const f=new File([b],'been-map.png',{type:'image/png'});
     if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e.name=='AbortError')return}}
-    dl(b,'visited-map.png')});
+    dl(b,'been-map.png')});
 };
 
 /* ---------- avvio ---------- */
