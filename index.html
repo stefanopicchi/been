@@ -53,7 +53,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);b
 nav button{flex:1;border:0;background:none;padding:9px 0 8px;font-size:11px;color:var(--mut)}
 nav button b{display:block;font-size:20px;font-weight:400}
 nav button.on{color:var(--acc);font-weight:600}
-#sh{position:fixed;inset:0;z-index:10;display:flex;align-items:flex-end;justify-content:center}
+#sh{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center}
 #sh[hidden]{display:none}
 .bk{position:absolute;inset:0;background:rgba(0,0,0,.45)}
 .pn{position:relative;width:100%;max-width:520px;background:var(--card);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));animation:up .18s ease-out}
@@ -64,6 +64,13 @@ nav button.on{color:var(--acc);font-weight:600}
 .vis{display:flex;align-items:center;gap:14px;margin-top:16px}.vis span{flex:1}
 .vis button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:none;font-size:20px}
 .vis b{min-width:24px;text-align:center;font-size:18px}
+#fsb{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:17px;line-height:1;z-index:2;padding:0}
+#fs{position:fixed;inset:0;z-index:20;background:#e8eff6;display:none;align-items:center;justify-content:center}
+[data-t=dark] #fs{background:#12171c}
+#fs.on{display:flex}
+#fs #mapwrap{width:min(100vw,200vh);border:0;border-radius:0}
+#fs .rot{display:none;position:absolute;left:0;right:0;bottom:calc(24px + env(safe-area-inset-bottom));text-align:center;color:var(--mut);font-size:14px;pointer-events:none}
+@media(orientation:portrait){#fs .rot{display:block}}
 @media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
 @media(prefers-reduced-motion:reduce){.pn{animation:none}}
 </style>
@@ -72,9 +79,10 @@ nav button.on{color:var(--acc);font-weight:600}
 <header><h1 id="ttl">Been</h1></header>
 <main>
   <section id="v-map" class="on">
-    <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="mapslot"><div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
+      <button id="fsb" aria-label="Full screen">⛶</button>
       <div id="zoom"><button id="zi" aria-label="+">+</button><button id="zo" aria-label="-">−</button><button id="zr" aria-label="reset">⟲</button></div>
-    </div>
+    </div></div>
     <div class="hint" data-i="hint"></div>
     <div class="grid" id="sum"></div>
   </section>
@@ -106,6 +114,7 @@ nav button.on{color:var(--acc);font-weight:600}
   <button data-v="stats"><b>📊</b><span data-i="tStats"></span></button>
   <button data-v="set"><b>⚙</b><span data-i="tSet"></span></button>
 </nav>
+<div id="fs"><div class="rot" data-i="rotate"></div></div>
 <div id="sh" hidden>
   <div class="bk"></div>
   <div class="pn">
@@ -119,13 +128,13 @@ nav button.on{color:var(--acc);font-weight:600}
 const W=WORLD.vb[0],H=WORLD.vb[1],CK=Object.keys(WORLD.k),$=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
 const CN={AF:{it:'Africa',en:'Africa'},AS:{it:'Asia',en:'Asia'},EU:{it:'Europa',en:'Europe'},NA:{it:'Nord America',en:'North America'},SA:{it:'Sud America',en:'South America'},OC:{it:'Oceania',en:'Oceania'}};
 const TX={
-it:{tMap:'Mappa',tList:'Paesi',tStats:'Statistiche',tSet:'Impostazioni',hint:'Tocca un paese per segnarlo. Pizzica o usa +/− per ingrandire.',search:'Cerca un paese…',
+it:{tMap:'Mappa',tList:'Paesi',tStats:'Statistiche',tSet:'Impostazioni',hint:'Tocca un paese per segnarlo. Pizzica o usa +/− per ingrandire.',rotate:'Ruota il telefono in orizzontale',search:'Cerca un paese…',
 language:'Lingua',theme:'Tema',auto:'Automatico',light:'Chiaro',dark:'Scuro',visited:'Visitato',lived:'Vissuto',none:'Non visitato',visits:'Numero di visite (facoltativo)',
 backup:'Dati e condivisione',expImg:'Esporta la mappa come immagine',share:'Condividi',expJson:'Backup (file JSON)',download:'Scarica',impJson:'Ripristina da backup',choose:'Scegli file',reset:'Cancella tutti i dati',delete:'Cancella',
 note:'I dati restano su questo dispositivo. Fai un backup prima di cambiare telefono o browser.',
 countries:'Paesi',ofCountries:'dei paesi del mondo',ofLand:'delle terre emerse',byCont:'Per continente',visitedList:'Paesi visitati',empty:'Ancora nessun paese: tocca la mappa per iniziare.',
 confirmReset:'Cancellare tutti i paesi segnati?',badFile:'File non valido.',confirmImp:'Sostituire i dati attuali con quelli del backup?',ofWorld:'del mondo',tot:'visite registrate'},
-en:{tMap:'Map',tList:'Countries',tStats:'Stats',tSet:'Settings',hint:'Tap a country to mark it. Pinch or use +/− to zoom.',search:'Search a country…',
+en:{tMap:'Map',tList:'Countries',tStats:'Stats',tSet:'Settings',hint:'Tap a country to mark it. Pinch or use +/− to zoom.',rotate:'Rotate your phone to landscape',search:'Search a country…',
 language:'Language',theme:'Theme',auto:'Automatic',light:'Light',dark:'Dark',visited:'Visited',lived:'Lived',none:'Not visited',visits:'Number of visits (optional)',
 backup:'Data and sharing',expImg:'Export the map as an image',share:'Share',expJson:'Backup (JSON file)',download:'Download',impJson:'Restore from backup',choose:'Choose file',reset:'Delete all data',delete:'Delete',
 note:'Data stays on this device. Make a backup before switching phone or browser.',
@@ -167,6 +176,16 @@ svg.addEventListener('pointermove',e=>{
 svg.addEventListener('wheel',e=>{e.preventDefault();const m=pt(e.clientX,e.clientY);zoom(e.deltaY>0?1.2:1/1.2,m[0],m[1])},{passive:false});
 svg.addEventListener('click',e=>{const c=e.target.dataset&&e.target.dataset.c;if(c&&moved<8)openSheet(c)});
 $('#zi').onclick=()=>zoom(1/1.5,V.x+V.w/2,V.y+V.h/2);$('#zo').onclick=()=>zoom(1.5,V.x+V.w/2,V.y+V.h/2);$('#zr').onclick=()=>{V={x:0,y:0,w:W,h:H};setV()};
+
+/* ---------- schermo intero ---------- */
+const fsEl=$('#fs'),slot=$('#mapslot'),wrap=$('#mapwrap');let fsOn=false;
+async function fsOpen(){fsOn=true;fsEl.appendChild(wrap);fsEl.classList.add('on');$('#fsb').textContent='✕';document.body.style.overflow='hidden';
+  try{await fsEl.requestFullscreen();await screen.orientation.lock('landscape')}catch(e){}}
+function fsClose(){if(!fsOn)return;fsOn=false;slot.appendChild(wrap);fsEl.classList.remove('on');$('#fsb').textContent='⛶';document.body.style.overflow='';
+  try{screen.orientation.unlock()}catch(e){}if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}
+$('#fsb').onclick=()=>fsOn?fsClose():fsOpen();
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)fsClose()});
+document.addEventListener('keydown',e=>{if(e.key=='Escape')fsClose()});
 
 /* ---------- scheda paese ---------- */
 let cur=null;
